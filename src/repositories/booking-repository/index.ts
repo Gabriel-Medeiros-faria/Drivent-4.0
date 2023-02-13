@@ -1,44 +1,91 @@
-import { prisma } from '@/config';
+import { prisma } from "@/config";
 
-async function getBookings(userId: number) {
-  return prisma.booking.findFirst({
-    where: {
-      userId,
-    },
-  });
-}
-
-async function createBooking(roomId: number, userId: number) {
-  return prisma.booking.create({
-    data: {
-      roomId,
-      userId,
-    },
-  });
-}
-
-async function verifyRoom(roomId: number) {
-  return prisma.room.findFirst({
-    where: {
-      id: roomId,
-    }
-  });
-}
-
-export function updatedBooking(bookingId: number, roomId: number){
-    return prisma.booking.update({
-        where:{
-            id: bookingId,
+async function findbooking(userId: number) {
+    return prisma.booking.findFirst({
+        where: {
+             userId
         },
+        select: {
+            id: true,
+            Room: true,
+        }
+    });
+  }
+
+ 
+  async function createBooking(userId: number, roomId: number) {
+    return prisma.booking.create({
         data:{
-            roomId
+          userId,
+          roomId
+        }, select:{
+          roomId: true
         }
     })
-}
+  }
 
-export const bookingRepository = {
-  getBookings,
-  createBooking,
-  verifyRoom,
-  updatedBooking
-};
+  async function findEnrollment(userId: number) {
+    return prisma.enrollment.findFirst({
+      where: {userId}
+    })
+  }
+
+  async function updateBooking(bookingId: number, roomId: number) {
+    return prisma.booking.update({
+        where:{
+            id: bookingId
+        },
+        data: {
+            roomId
+        },
+        select:{
+          roomId:true
+        }
+    })
+  };
+
+ 
+
+
+  async function getCheckCapacity(roomId: number) {
+    return prisma.booking.findMany({
+      where: {
+        roomId
+      }
+    })
+  }
+  
+  async function findTicketType(id: number) {
+    return prisma.ticketType.findFirst({
+      where: {
+        id
+      }
+    })
+  }
+
+  async function findTicket(enrollmentId: number) {
+    return prisma.ticket.findFirst({
+      where: {
+        enrollmentId
+      }
+    })
+  }
+
+  async function findRoom(id: number) {
+    return prisma.room.findFirst({
+      where: {id}
+    })
+  }
+  
+  const bookingRepository = {
+    findbooking,
+    createBooking,
+    updateBooking,
+    getCheckCapacity,
+    findTicketType,
+    findEnrollment,
+    findTicket,
+    findRoom
+  };
+  
+  export default bookingRepository;
